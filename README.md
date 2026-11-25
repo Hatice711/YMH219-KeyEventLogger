@@ -1,64 +1,66 @@
-# YMH219 - Flappy Bird
+# YMH219 - Key Event Logger (Eğitsel)
 
-Nesne Tabanlı Programlama (YMH 219) dersi kapsamında C# ve Windows Forms ile geliştirilmiş Flappy Bird benzeri bir masaüstü oyunudur. Oyuncu, kuşu klavye ile zıplatarak borular arasındaki boşluklardan geçirmeye çalışır.
+Nesne Tabanlı Programlama (YMH 219) dersi kapsamında C# ve Windows Forms ile geliştirilmiş, klavye olaylarının nasıl yakalandığını ve işlendiğini gösteren eğitsel bir uygulamadır. Uygulama **yalnızca kendi penceresi aktifken** basılan tuşların adını ve zamanını listeler, istenirse kayıtları bir `.txt` dosyasına kaydeder.
 
 ## Geliştirici
 - **Ad Soyad:** Hatice Kırmızıgül
-- **Öğrenci No:** [Öğrenci Numaran]
+- **Öğrenci No:** 250541102
 
 ## Kullanılan Teknolojiler
 - C#
 - .NET 10 (Windows Forms)
-- GDI+ (`System.Drawing`) ile çizim
+- `StreamWriter` ile dosya işlemleri
+- LINQ (istatistik hesaplama)
 - Visual Studio
 - Harici NuGet paketi kullanılmamıştır.
 
 ## Kurulum ve Çalıştırma
 1. Depoyu klonlayın:
-   `git clone https://github.com/Hatice711/YMH219-FlappyBird.git`
-2. `FlappyBird.slnx` dosyasını Visual Studio ile açın.
+   `git clone https://github.com/Hatice711/YMH219-KeyEventLogger.git`
+2. `KeyEventLogger.slnx` dosyasını Visual Studio ile açın.
 3. **F5** tuşuna basarak projeyi derleyip çalıştırın.
 
 > Gereksinim: Windows işletim sistemi ve .NET 10 SDK.
 
-## Kontroller
-| Tuş | İşlev |
-|---|---|
-| `Space` / `Yukarı Ok` | Zıpla / Oyunu başlat |
-| `R` | Game Over ekranında yeniden başlat |
-| **Yeni Oyun** düğmesi | Oyunu yeniden başlat |
+## Kullanım
+1. **Başlat** düğmesine basın; sağ üstteki gösterge **KAYIT AÇIK** olur.
+2. Uygulama penceresi aktifken basılan tuşlar, zaman bilgisiyle listede görünür.
+3. **Durdur** ile kaydı durdurun, **Temizle** ile listeyi silin.
+4. **Kaydet (.txt)** ile kayıtları bir metin dosyasına kaydedin.
 
 ## Özellikler
-- Yer çekimi etkisi ve klavye ile zıplama
-- Sağdan sola hareket eden, ekran dışına çıkınca yeniden konumlanan 3 boru çifti
-- Rastgele yükseklikte boru boşlukları
-- Zemin, tavan ve borularla çarpışma kontrolü, Game Over ekranı
-- Geçilen her boru için skor artışı
-- Yeni Oyun düğmesi ve R tuşu ile yeniden başlatma
-- En yüksek skorun dosyada (`highscore.txt`) saklanması
-- Her 5 puanda bir hızın artması (seviye sistemi)
+- Tuş adı ve milisaniye hassasiyetinde zaman bilgisiyle kayıt (`[25.11.2026 15:58:01.123]  A`)
+- Tuş kombinasyonlarının okunabilir gösterimi (`Ctrl + Shift + S`)
+- Basılı tutulan tuşun tek kayıt olarak sayılması (KeyDown + KeyUp birlikte kullanılır)
+- Başlat / Durdur / Temizle işlemleri ve duruma göre aktif-pasif olan düğmeler
+- Renkli kayıt durumu göstergesi (KAYIT AÇIK / KAYIT KAPALI)
+- Kayıtların `.txt` dosyasına kaydedilmesi (SaveFileDialog + StreamWriter)
+- Dosya hatalarında uygulamanın kapanmadan kullanıcıya bilgi vermesi
+- Toplam tuş sayısı ve en sık basılan 3 tuşun istatistiği
 
 ## Sınıf Yapısı
 | Sınıf | Görevi |
 |---|---|
-| `Bird` | Kuşun konumu, hızı, yer çekimi, zıplama ve çizimi |
-| `Pipe` | Boru çiftinin konumu, hareketi, yeniden konumlanması ve çarpışma kontrolü |
-| `GameState` | Oyun durumu (Waiting / Playing / GameOver), skor, hız, seviye ve rekor bilgisi |
-| `HighScoreManager` | En yüksek skorun dosyadan okunması ve dosyaya yazılması |
-| `Form1` | Oyun döngüsü (Timer), klavye olayları ve ekrana çizim |
+| `KeyLogEntry` | Tek bir tuş kaydı: zaman ve tuş adı |
+| `KeyLogger` | Kayıt durumu, kayıt listesi, tuş adlarının biçimlendirilmesi ve istatistikler |
+| `LogFileService` | Kayıtların `StreamWriter` ile metin dosyasına yazılması |
+| `Form1` | Arayüz, klavye olayları (KeyDown/KeyUp/Deactivate) ve düğme işlemleri |
+
+## Kapsam ve Güvenlik Sınırı
+Bu uygulama gerçek bir sistem keylogger'ı **değildir**:
+- Tuşlar yalnızca uygulamanın kendi penceresi odaktayken, formun `KeyDown`/`KeyUp` olaylarıyla yakalanır.
+- Global keyboard hook, arka planda/gizli çalışma, başlangıçta otomatik çalışma yoktur.
+- Başka uygulamalardan veri toplanmaz, kayıtlar ağ üzerinden gönderilmez.
+- Kayıtlar yalnızca kullanıcı **Kaydet** dediğinde, kullanıcının seçtiği konuma yazılır.
 
 ## Ekran Görüntüleri
-### Başlangıç Ekranı
-![Başlangıç ekranı](FlappyBird/screenshots/baslangic.png)
+### Kayıt Sırasında
+![Kayıt ekranı](KeyEventLogger/screenshots/kayit.png)
 
-### Oyun Sırasında
-![Oyun ekranı](FlappyBird/screenshots/oyun.png)
-
-### Game Over
-![Game Over ekranı](FlappyBird/screenshots/gameover.png)
+### Kayıt Durdurulduktan Sonra
+![Kayıt durduruldu ekranı](KeyEventLogger/screenshots/durduruldu.png)
 
 ## Bilinen Sınırlamalar / Geliştirme Notları
-- Oyun grafikleri hazır görseller yerine GDI+ ile basit şekiller kullanılarak çizilmiştir.
-- Ses efekti bulunmamaktadır.
-- Pencere boyutu sabittir (400x600).
-- Çarpışma kontrolü dikdörtgen (AABB) tabanlıdır; kuşun yuvarlak şeklinin köşelerinde küçük sapmalar olabilir.
+- Odak bir kontroldeyken **Tab** tuşu Windows tarafından kontroller arası geçiş için kullanıldığından kaydedilmez.
+- Kayıtlar yalnızca bellekte tutulur; dosyaya kaydedilmeden uygulama kapatılırsa kaybolur.
+- Kayıtları tarih/saat aralığına göre filtreleme özelliği henüz eklenmemiştir.
