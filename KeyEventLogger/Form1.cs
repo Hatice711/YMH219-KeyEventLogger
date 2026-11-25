@@ -26,42 +26,58 @@ namespace KeyEventLogger
         private void BuildUi()
         {
             Text = "Key Event Logger - YMH219";
-            ClientSize = new Size(640, 480);
-            MinimumSize = new Size(600, 400);
+            ClientSize = new Size(680, 480);
+            MinimumSize = new Size(640, 400);
             StartPosition = FormStartPosition.CenterScreen;
             Font = new Font("Segoe UI", 10);
+            Padding = new Padding(8);
             KeyPreview = true;   // tuş olayları önce forma gelsin
 
-            SetupButton(btnStart, "Başlat", 12, BtnStart_Click);
-            SetupButton(btnStop, "Durdur", 122, BtnStop_Click);
-            SetupButton(btnClear, "Temizle", 232, BtnClear_Click);
-            SetupButton(btnSave, "Kaydet (.txt)", 342, BtnSave_Click);
+            // Üst çubuk: düğmeler ve durum göstergesi soldan sağa yan yana dizilir.
+            // FlowLayoutPanel konumları kendisi hesapladığı için ekran ölçeğinden etkilenmez.
+            FlowLayoutPanel topBar = new FlowLayoutPanel();
+            topBar.Dock = DockStyle.Top;
+            topBar.AutoSize = true;
+            topBar.WrapContents = false;
+            topBar.Padding = new Padding(0, 0, 0, 6);
 
-            // Kayıt durumu göstergesi (sağ üst)
+            SetupButton(btnStart, "Başlat", BtnStart_Click);
+            SetupButton(btnStop, "Durdur", BtnStop_Click);
+            SetupButton(btnClear, "Temizle", BtnClear_Click);
+            SetupButton(btnSave, "Kaydet (.txt)", BtnSave_Click);
+
+            // Kayıt durumu göstergesi (düğmelerin sağında)
             lblStatus.AutoSize = true;
             lblStatus.Font = new Font("Segoe UI", 11, FontStyle.Bold);
-            lblStatus.Location = new Point(ClientSize.Width - 170, 20);
-            lblStatus.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblStatus.Margin = new Padding(16, 8, 0, 0);
 
-            // Kayıt listesi
-            lstLog.Location = new Point(12, 60);
-            lstLog.Size = new Size(ClientSize.Width - 24, ClientSize.Height - 120);
-            lstLog.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lstLog.Font = new Font("Consolas", 10);
-            lstLog.IntegralHeight = false;
+            topBar.Controls.AddRange(new Control[] { btnStart, btnStop, btnClear, btnSave, lblStatus });
 
-            // Alt bilgi satırları
+            // Alt çubuk: istatistik ve bilgi satırı alt alta
+            FlowLayoutPanel bottomBar = new FlowLayoutPanel();
+            bottomBar.Dock = DockStyle.Bottom;
+            bottomBar.AutoSize = true;
+            bottomBar.FlowDirection = FlowDirection.TopDown;
+            bottomBar.WrapContents = false;
+            bottomBar.Padding = new Padding(0, 6, 0, 0);
+
             lblCount.AutoSize = true;
-            lblCount.Location = new Point(12, ClientSize.Height - 52);
-            lblCount.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 
             lblInfo.AutoSize = true;
             lblInfo.ForeColor = Color.Gray;
             lblInfo.Text = "Not: Tuşlar yalnızca bu pencere aktifken kaydedilir.";
-            lblInfo.Location = new Point(12, ClientSize.Height - 28);
-            lblInfo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 
-            Controls.AddRange(new Control[] { btnStart, btnStop, btnClear, btnSave, lblStatus, lstLog, lblCount, lblInfo });
+            bottomBar.Controls.AddRange(new Control[] { lblCount, lblInfo });
+
+            // Kayıt listesi: üst ve alt çubuk arasında kalan alanı doldurur
+            lstLog.Dock = DockStyle.Fill;
+            lstLog.Font = new Font("Consolas", 10);
+            lstLog.IntegralHeight = false;
+
+            Controls.Add(lstLog);
+            Controls.Add(topBar);
+            Controls.Add(bottomBar);
+            lstLog.BringToFront();   // Fill olan kontrol en son yerleşsin, çubukların altında kalmasın
 
             // Klavye ve pencere olayları
             KeyDown += Form1_KeyDown;
@@ -69,11 +85,11 @@ namespace KeyEventLogger
             Deactivate += Form1_Deactivate;
         }
 
-        private void SetupButton(Button button, string text, int x, EventHandler onClick)
+        private void SetupButton(Button button, string text, EventHandler onClick)
         {
             button.Text = text;
-            button.Location = new Point(x, 12);
-            button.Size = new Size(100, 36);
+            button.AutoSize = true;                    // yazı sığmazsa düğme genişlesin
+            button.MinimumSize = new Size(100, 36);
             button.Click += onClick;
         }
 
