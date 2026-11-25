@@ -3,11 +3,13 @@ namespace KeyEventLogger
     public partial class Form1 : Form
     {
         private readonly KeyLogger logger = new KeyLogger();
+        private readonly LogFileService fileService = new LogFileService();
 
         // Arayüz bileşenleri
         private readonly Button btnStart = new Button();
         private readonly Button btnStop = new Button();
         private readonly Button btnClear = new Button();
+        private readonly Button btnSave = new Button();
         private readonly Label lblStatus = new Label();
         private readonly Label lblCount = new Label();
         private readonly Label lblInfo = new Label();
@@ -25,7 +27,7 @@ namespace KeyEventLogger
         {
             Text = "Key Event Logger - YMH219";
             ClientSize = new Size(640, 480);
-            MinimumSize = new Size(560, 400);
+            MinimumSize = new Size(600, 400);
             StartPosition = FormStartPosition.CenterScreen;
             Font = new Font("Segoe UI", 10);
             KeyPreview = true;   // tuş olayları önce forma gelsin
@@ -33,11 +35,12 @@ namespace KeyEventLogger
             SetupButton(btnStart, "Başlat", 12, BtnStart_Click);
             SetupButton(btnStop, "Durdur", 122, BtnStop_Click);
             SetupButton(btnClear, "Temizle", 232, BtnClear_Click);
+            SetupButton(btnSave, "Kaydet (.txt)", 342, BtnSave_Click);
 
             // Kayıt durumu göstergesi (sağ üst)
             lblStatus.AutoSize = true;
             lblStatus.Font = new Font("Segoe UI", 11, FontStyle.Bold);
-            lblStatus.Location = new Point(ClientSize.Width - 190, 20);
+            lblStatus.Location = new Point(ClientSize.Width - 170, 20);
             lblStatus.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 
             // Kayıt listesi
@@ -58,7 +61,7 @@ namespace KeyEventLogger
             lblInfo.Location = new Point(12, ClientSize.Height - 28);
             lblInfo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 
-            Controls.AddRange(new Control[] { btnStart, btnStop, btnClear, lblStatus, lstLog, lblCount, lblInfo });
+            Controls.AddRange(new Control[] { btnStart, btnStop, btnClear, btnSave, lblStatus, lstLog, lblCount, lblInfo });
 
             // Klavye ve pencere olayları
             KeyDown += Form1_KeyDown;
@@ -78,10 +81,12 @@ namespace KeyEventLogger
         private void UpdateUi()
         {
             bool recording = logger.IsRecording;
+            bool hasEntries = logger.TotalCount > 0;
 
             btnStart.Enabled = !recording;
             btnStop.Enabled = recording;
-            btnClear.Enabled = logger.TotalCount > 0;
+            btnClear.Enabled = hasEntries;
+            btnSave.Enabled = hasEntries;
 
             lblStatus.Text = recording ? "● KAYIT AÇIK" : "● KAYIT KAPALI";
             lblStatus.ForeColor = recording ? Color.ForestGreen : Color.Crimson;
@@ -122,6 +127,31 @@ namespace KeyEventLogger
             }
 
             UpdateUi();
+            FocusList();
+        }
+
+        private void BtnSave_Click(object? sender, EventArgs e)
+        {
+            using SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Title = "Kayıtları Kaydet";
+            dialog.Filter = "Metin dosyası (*.txt)|*.txt";
+            dialog.FileName = $"keylog_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+
+            if (dialog.ShowDialog(this) == DialogResult.OK)
+            {
+                try
+                {
+                    fileService.Save(dialog.FileName, logger.Entries);
+                    MessageBox.Show($"{logger.TotalCount} kayıt dosyaya kaydedildi:\n{dialog.FileName}",
+                        "Kaydedildi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+                {
+                    MessageBox.Show("Dosya kaydedilemedi:\n" + ex.Message,
+                        "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
             FocusList();
         }
 
