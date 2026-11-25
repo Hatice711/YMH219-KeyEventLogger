@@ -53,6 +53,29 @@
             heldKeys.Clear();
         }
 
+        // En sık basılan tuşları (tuş adı, sayı) olarak döndürür
+        public List<(string Key, int Count)> GetMostFrequentKeys(int count)
+        {
+            return entries
+                .GroupBy(e => e.KeyName)                       // aynı tuşları grupla
+                .Select(g => (Key: g.Key, Count: g.Count()))   // her grubun sayısını al
+                .OrderByDescending(x => x.Count)               // çoktan aza sırala
+                .Take(count)                                   // ilk 'count' tanesini al
+                .ToList();
+        }
+
+        // Alt bilgi satırında gösterilecek istatistik metni
+        public string GetStatisticsText()
+        {
+            string text = $"Toplam kayıt: {TotalCount}";
+
+            List<(string Key, int Count)> top = GetMostFrequentKeys(3);
+            if (top.Count > 0)
+                text += "   |   En sık: " + string.Join(", ", top.Select(t => $"{t.Key} ({t.Count})"));
+
+            return text;
+        }
+
         // Tuş kodunu okunabilir bir metne çevirir: "Ctrl + Shift + A" gibi
         private static string FormatKey(Keys keyCode, Keys modifiers)
         {

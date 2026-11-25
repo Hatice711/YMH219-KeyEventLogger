@@ -77,7 +77,7 @@ namespace KeyEventLogger
             button.Click += onClick;
         }
 
-        // Düğmelerin aktifliğini, göstergeyi ve sayacı günceller
+        // Düğmelerin aktifliğini, göstergeyi ve istatistikleri günceller
         private void UpdateUi()
         {
             bool recording = logger.IsRecording;
@@ -91,7 +91,7 @@ namespace KeyEventLogger
             lblStatus.Text = recording ? "● KAYIT AÇIK" : "● KAYIT KAPALI";
             lblStatus.ForeColor = recording ? Color.ForestGreen : Color.Crimson;
 
-            lblCount.Text = $"Toplam kayıt: {logger.TotalCount}";
+            lblCount.Text = logger.GetStatisticsText();
         }
 
         // Odağı listeye ver: böylece Space/Enter yanlışlıkla bir düğmeye basmaz
